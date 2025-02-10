@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <title>My JS Viz</title>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+<body>
+
+    <h2>Top Grossing Albums of the Early 2000s</h2>
+    <div id="vis"></div>
+
+    <script>
+        async function loadJsonFromFile(filePath) {
+            try {
+                const response = await fetch(filePath);
+                return await response.json();
+            } catch (error) {
+                console.error('Error loading JSON:', error);
+                return null;
+            }
+        }
+
+        loadJsonFromFile("dummy-data.json").then(response => {
+            console.log(response);
+            var vlSpec = {
+                "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                "data": {
+                    "values": response
+                },
+                "repeat": {"layer": ["Worldwide Sales", "US Sales"]},
+                "spec": {
+                    "mark": "bar",
+                    "encoding": {
+                        "x": {"field": "Album", "type": "nominal"},
+                        "y": {"field": {"repeat": "layer"}, "type": "quantitative", "title": "Total Sales (millions)"},
+                        "color": {"datum": {"repeat": "layer"}, "title": "Gross"},
+                        "xOffset": {"datum": {"repeat": "layer"}}
+                    }
+                },
+                "config": {
+                    "mark": {"invalid": null}
+                }
+            };
+
+            vegaEmbed("#vis", vlSpec).catch(console.error);
+        });
+    </script>
+
+</body>
+</html>
